@@ -6,7 +6,6 @@ ENV EXTENSION_DIR="/opt/bitnami/php/lib/php/extensions" \
 	REDIS_VERSION=3.1.1
 	
 #INIT
-RUN apt-get update
 RUN pecl channel-update pecl.php.net \
 	&& pecl config-set ext_dir $EXTENSION_DIR
 #todo fix set extension_dir of pho-config
@@ -18,7 +17,8 @@ RUN pecl channel-update pecl.php.net \
 #RUN pecl install -f redis-3.1.1 
 
 #Install redis source
-RUN apt-get -yqq install wget 
+RUN apt-get update \
+	&& apt-get -yqq install autconf wget build-essential
 RUN mkdir -p /tmp/php-redis
 WORKDIR /tmp/php-redis
 RUN wget https://pecl.php.net/get/redis-$REDIS_VERSION.tgz \
@@ -34,7 +34,8 @@ RUN rm -dR /tmp/php-redis
 
 
 #Install Newrelic-php
-RUN apt-get -yqq install wget python-setuptools 
+RUN apt-get update \
+	&& apt-get -yqq install wget python-setuptools 
 RUN easy_install pip
 RUN mkdir -p /opt/newrelic
 WORKDIR /opt/newrelic
