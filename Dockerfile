@@ -1,16 +1,56 @@
 FROM bitnami/php-fpm:latest
 MAINTAINER Zetanova <office@zetanova.eu>
 
-ENV BITNAMI_IMAGE_VERSION=7.1.3-r0 \
-    BITNAMI_APP_NAME=php-fpm \
-    PATH=/opt/bitnami/php/sbin:/opt/bitnami/php/bin:$PATH
 
-# System packages required
-#RUN install_packages libc6 zlib1g libxslt1.1 libtidy-0.99-0 libreadline6 libncurses5 libtinfo5 libmcrypt4 libldap-2.4-2 libstdc++6 libgmp10 libpng12-0 libjpeg62-turbo libbz2-1.0 libxml2 libssl1.0.0 libcurl3 libfreetype6 libicu52 libgcc1 libgcrypt20 libsasl2-2 libgnutls-deb0-28 liblzma5 libidn11 librtmp1 libssh2-1 libgssapi-krb5-2 libkrb5-3 libk5crypto3 libcomerr2 libgpg-error0 libp11-kit0 libtasn1-6 libnettle4 libhogweed2 libkrb5support0 libkeyutils1 libffi6 libsybdb5 libpq5
+ENV EXTENSION_DIR "/opt/bitnami/php/lib/php/extensions"
+	REDIS_VERSION 3.1.1
+	
+#INIT
+RUN apt-get update
+RUN pecl channel-update pecl.php.net \
+	&& pecl config-set ext_dir $EXTENSION_DIR
+#todo fix set extension_dir of pho-config
 
-# Install php
-#RUN bitnami-pkg unpack php-7.1.3-0 --checksum 0b1270ac702523a9f2f448a71f953c5212db41e59a586b86c1b9422b28b6d5b8
-#RUN mkdir -p /bitnami && ln -sf /bitnami/php /bitnami/php-fpm
+
+#Install redis pecl
+#until fix extension_dir of pho-config 
+#RUN apt-get install -yqq autoconf build-essential
+#RUN pecl install -f redis-3.1.1 
+
+#Install redis source
+RUN apt-get -yqq install wget 
+RUN mkdir -p /tmp/php-redis
+WORKDIR /tmp/php-redis
+RUN wget https://pecl.php.net/get/redis-$REDIS_VERSION.tgz /
+	&& tar -xzf redis-$REDIS_VERSION.tgz --strip=1
+RUN phpize /
+	&& ./configure
+	&& make
+#make install
+#until fix extension_dir of pho-config 
+mv modules/* $EXTENSION_DIR
+WORKDIR / 
+RUN rm -dR /tmp/php-redis
 
 
-#TEST BUILD
+#Install Newrelic-php
+RUN apt-get -yqq install wget python-setuptools
+RUN easy_install pip
+RUN mkdir -p /opt/newrelic
+WORKDIR /opt/newrelic
+RUN wget -r -nd --no-parent -Alinux.tar.gz \
+    http://download.newrelic.com/php_agent/release/ >/dev/null 2>&1 \
+    && tar -xzf newrelic-php*.tar.gz --strip=1
+ENV NR_INSTALL_SILENT true
+ENV NR_INSTALL_KEY {{key "NEWRELIC_LICENSE_KEY"}}
+RUN bash newrelic-install install
+WORKDIR /
+#Install newrelic agent
+RUN pip install newrelic-plugin-agent
+RUN mkdir -p /var/log/newrelic
+RUN mkdir -p /var/run/newrelic
+
+#cleanup
+RUN apt-get remove -yqq autoconf wget python-setuptools build-essential
+
+WORKDIR /app/
