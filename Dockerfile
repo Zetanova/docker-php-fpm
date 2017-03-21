@@ -18,7 +18,7 @@ RUN pecl channel-update pecl.php.net \
 
 #Install redis source
 RUN apt-get update \
-	&& apt-get -yqq install autconf wget build-essential
+	&& apt-get -yqq install autoconf wget build-essential
 RUN mkdir -p /tmp/php-redis
 WORKDIR /tmp/php-redis
 RUN wget https://pecl.php.net/get/redis-$REDIS_VERSION.tgz \
