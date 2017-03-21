@@ -4,7 +4,7 @@ MAINTAINER Zetanova <office@zetanova.eu>
 
 ENV REDIS_VERSION=3.1.1 \
 	EXTENSION_DIR="/opt/bitnami/php/lib/php/extensions" \
-	DEBIAN_FRONTEND noninteractive
+	DEBIAN_FRONTEND=noninteractive
 	
 #INIT
 RUN pecl channel-update pecl.php.net \
