@@ -9,7 +9,7 @@ ENV DEBIAN_FRONTEND noninteractive
 	
 #INIT
 RUN pecl channel-update pecl.php.net \
-	&& pecl config-set ext_dir $EXTENSION_DIR
+	&& pecl config-set ext_dir $EXTENSION_DIR \
 	&& pear config-set ext_dir $EXTENSION_DIR
 #todo fix set extension_dir of pho-config
 
