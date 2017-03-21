@@ -4,10 +4,13 @@ MAINTAINER Zetanova <office@zetanova.eu>
 
 ENV EXTENSION_DIR="/opt/bitnami/php/lib/php/extensions" \
 	REDIS_VERSION=3.1.1
+
+ENV DEBIAN_FRONTEND noninteractive
 	
 #INIT
 RUN pecl channel-update pecl.php.net \
 	&& pecl config-set ext_dir $EXTENSION_DIR
+	&& pear config-set ext_dir $EXTENSION_DIR
 #todo fix set extension_dir of pho-config
 
 
@@ -45,6 +48,7 @@ RUN wget -r -nd --no-parent -Alinux.tar.gz \
 ENV NR_INSTALL_SILENT=true
 #ENV NR_INSTALL_KEY={{key "NEWRELIC_LICENSE_KEY"}}
 RUN bash newrelic-install install
+RUN rm newrelic-php*.gz
 WORKDIR /
 #Install newrelic agent
 RUN pip install newrelic-plugin-agent
@@ -53,5 +57,9 @@ RUN mkdir -p /var/log/newrelic \
 
 #cleanup
 RUN apt-get remove -yqq autoconf wget python-setuptools build-essential
+RUN apt-get clean \
+	&& rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+	
+ENV DEBIAN_FRONTEND teletype
 
 WORKDIR /app/
