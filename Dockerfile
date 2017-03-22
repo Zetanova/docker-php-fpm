@@ -31,6 +31,7 @@ RUN apt-get update \
 	&& cd / \
 	&& rm -dR /tmp/php-redis \
 	&& apt-get remove -yqq autoconf wget build-essential \
+	&& apt-get autoremove -y \
 	&& apt-get clean \
 	&& rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
@@ -54,12 +55,14 @@ RUN apt-get update \
 	&& mkdir -p /var/log/newrelic \
 	&& mkdir -p /var/run/newrelic\
 	&& apt-get remove -yqq wget python-setuptools \
+	&& apt-get autoremove -y \
 	&& apt-get clean \
 	&& rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 	
 
 #cleanup
 RUN apt-get remove -yqq autoconf wget python-setuptools build-essential \
+	&& apt-get autoremove -y \
 	&& apt-get clean \
 	&& rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 	
